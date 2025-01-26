@@ -1,6 +1,6 @@
 import os
 import json
-from flask import Flask, request, jsonify, render_template_string
+from flask import Flask, request, jsonify, render_template
 from flask_socketio import SocketIO, emit
 from dotenv import load_dotenv
 from pymongo import MongoClient
@@ -73,43 +73,7 @@ def log_user():
 
 @app.route('/log', methods=['GET'])
 def display_log():
-    html = """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>User Log</title>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.min.js"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const socket = io();
-
-                // Request initial log data on connection
-                socket.on('connect', () => {
-                    socket.emit('request_initial_log');
-                });
-
-                socket.on('update_log', (data) => {
-                    document.getElementById('total-users').textContent = data.total_users;
-                    const logDiv = document.getElementById('log');
-                    logDiv.innerHTML = '';
-                    data.log.forEach(entry => {
-                        const p = document.createElement('p');
-                        p.textContent = `${entry.name}`;
-                        logDiv.appendChild(p);
-                    });
-                });
-            });
-        </script>
-    </head>
-    <body>
-        <h1>Checked-In Users</h1>
-        <p><strong>Total Users:</strong> <span id="total-users">0</span></p>
-        <p><strong>Log (Most Recent to Oldest):</strong></p>
-        <div id="log">No users checked in yet.</div>
-    </body>
-    </html>
-    """
-    return render_template_string(html)
+    return render_template('log.html')
 
 @socketio.on('request_initial_log')
 def handle_initial_log_request():
