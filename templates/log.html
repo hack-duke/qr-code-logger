@@ -2,8 +2,10 @@
 <html>
 <head>
     <title>User Log</title>
+    <!-- Link Google Fonts for Oxygen -->
+    <link href="https://fonts.googleapis.com/css2?family=Oxygen:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.min.js"></script>
-    <script>
+    <!--<script>
         document.addEventListener('DOMContentLoaded', () => {
             const socket = io();
 
@@ -23,12 +25,163 @@
                 });
             });
         });
+    </script> -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Example log data
+            const exampleData = {
+                total_users: 3,
+                log: [
+                    { name: 'Alice' },
+                    { name: 'Bob' },
+                    { name: 'Charlie' },
+                    { name: 'Charlie' },
+                    { name: 'David' },
+                    { name: 'Eve' },
+                    { name: 'Frank' },
+                    { name: 'Grace' },
+                    { name: 'Hank' },
+                    { name: 'Ivy' },
+                    { name: 'Jack' },
+                    { name: 'Karen' },
+                    { name: 'Leo' },
+                    { name: 'Mia' },
+                    { name: 'Nathan' },
+                    { name: 'Olivia' },
+                    { name: 'Paul' },
+                    { name: 'Quincy' },
+                    { name: 'Rachel' },
+                    { name: 'Steve' },
+                    { name: 'Tina' },
+                    { name: 'Uma' },
+                    { name: 'Victor' },
+                    { name: 'Wendy' },
+                    { name: 'Xavier' },
+                    { name: 'Yara' },
+                    { name: 'Zane' },
+                    { name: 'Anna' },
+                    { name: 'Ben' },
+                    { name: 'Cathy' },
+                    { name: 'Derek' },
+                    { name: 'Ella' },
+                    { name: 'Felix' },
+                    { name: 'Gina' },
+                    { name: 'Holly' },
+                    { name: 'Ian' },
+                    { name: 'Julia' },
+                    { name: 'Kyle' },
+                    { name: 'Laura' },
+                    { name: 'Mark' },
+                    { name: 'Nina' },
+                    { name: 'Oscar' },
+                    { name: 'Peter' },
+                    { name: 'Queen' },
+                    { name: 'Ron' },
+                    { name: 'Sophie' },
+                    { name: 'Thomas' },
+                    { name: 'Ursula' },
+                    { name: 'Vince' },
+                    { name: 'Will' },
+                    { name: 'Xena' },
+                    { name: 'Yvonne' },
+                    { name: 'Zach' },
+                    { name: 'Amber' },
+                    { name: 'Brian' },
+                    { name: 'Claire' },
+                    { name: 'Danielle' },
+                    { name: 'Ethan' },
+                    { name: 'Fiona' },
+                    { name: 'George' },
+                    { name: 'Harper' },
+                    { name: 'Isla' },
+                    { name: 'Jacob' },
+                    { name: 'Katie' },
+                    { name: 'Liam' },
+                    { name: 'Megan' },
+                    { name: 'Noah' },
+                    { name: 'Owen' },
+                    { name: 'Penny' },
+                    { name: 'Quinn' },
+                    { name: 'Ruby' },
+                    { name: 'Sam' },
+                    { name: 'Tara' },
+                    { name: 'Ulysses' },
+                    { name: 'Vanessa' },
+                    { name: 'Wes' },
+                    { name: 'Ximena' },
+                    { name: 'Yuri' },
+                    { name: 'Zoe' },
+                    { name: 'Aaron' },
+                    { name: 'Blake' },
+                    { name: 'Carmen' },
+                    { name: 'Diana' },
+                    { name: 'Elliot' },
+                    { name: 'Frances' },
+                    { name: 'Gavin' },
+                    { name: 'Hazel' },
+                    { name: 'Iantha' },
+                    { name: 'Jonah' },
+                    { name: 'Kylie' },
+                    { name: 'Logan' },
+                    { name: 'Molly' },
+                    { name: 'Nate' },
+                    { name: 'Olga' },
+                    { name: 'Paula' },
+                    { name: 'Reid' },
+                    { name: 'Selena' },
+                    { name: 'Travis' },
+                    { name: 'Umair' },
+                    { name: 'Victor' }
+                ]
+            };
+    
+            // Simulate the display of the log
+            document.getElementById('total-users').textContent = exampleData.total_users;
+            const logDiv = document.getElementById('log');
+            logDiv.innerHTML = ''; // Clear existing content
+            exampleData.log.forEach(entry => {
+                const p = document.createElement('p');
+                p.textContent = `${entry.name}`;
+                logDiv.appendChild(p);
+            });
+        });
     </script>
+    
+    <style>
+        /* Apply Oxygen font */
+        body {
+            font-family: 'Oxygen', sans-serif;
+            background-color: #1d42c6; /* Set background color */
+            color: white; /* Set text color */
+            margin: 0;
+            padding: 0;
+            display: flex; /* Use Flexbox for centering */
+            justify-content: center; /* Horizontally center */
+            align-items: center; /* Vertically center */
+            min-height: 100vh; /* Ensure the body takes up full viewport height */
+            text-align: center; /* Center text alignment */
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.2rem;
+        }
+
+        #log {
+            margin-top: 1rem;
+        }
+    </style>
 </head>
 <body>
-    <h1>Checked-In Users</h1>
-    <p><strong>Total Users:</strong> <span id="total-users">0</span></p>
-    <p><strong>Log (Most Recent to Oldest):</strong></p>
-    <div id="log">No users checked in yet.</div>
+    <div>
+        <h1>Checked-In Users</h1>
+        <p><strong>Total Users:</strong> <span id="total-users">0</span></p>
+        <p><strong>Log (Most Recent to Oldest):</strong></p>
+        <div id="log">No users checked in yet.</div>
+    </div>
 </body>
 </html>

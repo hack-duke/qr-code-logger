@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Log</title>
+    <!-- Link Google Fonts for Oxygen -->
+    <link href="https://fonts.googleapis.com/css2?family=Oxygen:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const socket = io();
+
+            // Request initial log data on connection
+            socket.on('connect', () => {
+                socket.emit('request_initial_log');
+            });
+
+            // Update log data
+            socket.on('update_log', (data) => {
+                document.getElementById('total-users').textContent = data.total_users;
+                const logDiv = document.getElementById('log');
+                logDiv.innerHTML = '';
+                data.log.forEach(entry => {
+                    const p = document.createElement('p');
+                    p.textContent = `${entry.name}`;
+                    logDiv.appendChild(p);
+                });
+            });
+
+            // Search functionality
+            const searchInput = document.getElementById('search-bar');
+            searchInput.addEventListener('input', () => {
+                const query = searchInput.value.trim();
+                if (query === '') {
+                    // If search is empty, request the full log
+                    socket.emit('request_initial_log');
+                } else {
+                    // Send search query to backend
+                    socket.emit('search_log', { query });
+                }
+            });
+
+            // Update log with search results
+            socket.on('search_results', (data) => {
+                const logDiv = document.getElementById('log');
+                logDiv.innerHTML = ''; // Clear existing content
+                data.log.forEach(entry => {
+                    const p = document.createElement('p');
+                    p.textContent = `${entry.name}`;
+                    logDiv.appendChild(p);
+                });
+            });
+        });
+    </script>
+    <style>
+        /* Apply Oxygen font */
+        body {
+            font-family: 'Oxygen', sans-serif;
+            background-color: #1d42c6; /* Set background color */
+            color: white; /* Set text color */
+            margin: 0;
+            padding: 0;
+            display: flex; /* Use Flexbox for centering */
+            flex-direction: column; /* Stack elements vertically */
+            align-items: center; /* Horizontally center */
+            min-height: 100vh; /* Ensure the body takes up full viewport height */
+            text-align: center; /* Center text alignment */
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.2rem;
+        }
+
+        #log {
+            margin-top: 1rem;
+        }
+
+        #search-bar {
+            padding: 0.5rem;
+            width: 50%;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h1>Checked-In Users</h1>
+        <input id="search-bar" type="text" placeholder="Search for a user...">
+        <p><strong>Total Users:</strong> <span id="total-users">0</span></p>
+        <p><strong>Log (Most Recent to Oldest):</strong></p>
+        <div id="log">No users checked in yet.</div>
+    </div>
+</body>
+</html>

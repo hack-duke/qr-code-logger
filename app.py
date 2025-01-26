@@ -73,11 +73,28 @@ def log_user():
 
 @app.route('/log', methods=['GET'])
 def display_log():
-    return render_template('log.html')
+    return render_template('log_with_search.html')
 
 @socketio.on('request_initial_log')
 def handle_initial_log_request():
     emit('update_log', {'log': user_log, 'total_users': len(user_log)})
+
+@socketio.on('search_log')
+def handle_search_log(data):
+    try:
+        query = data.get('query', '').lower()  # Get the query and convert to lowercase for case-insensitive search
+        if not query:
+            emit('search_results', {'log': user_log})  # Return the full log if the query is empty
+            return
+
+        # Filter the log for matching entries
+        filtered_log = [entry for entry in user_log if query in entry['name'].lower()]
+
+        # Emit the filtered results
+        emit('search_results', {'log': filtered_log})
+    except Exception as e:
+        print(f"Error in search_log: {e}")
+        emit('search_results', {'log': []})  # Return an empty log on error
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=8000)
