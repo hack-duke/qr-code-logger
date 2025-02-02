@@ -36,9 +36,17 @@
         }
         .success {
             color: green;
+            font-size: 24px;
+            font-weight: bold;
         }
         .error {
             color: red;
+        }
+        #checkmark {
+            font-size: 50px;
+            display: none;
+            margin-top: 10px;
+            color: green;
         }
     </style>
 </head>
@@ -47,11 +55,13 @@
     <video id="video" autoplay playsinline muted></video>
     <canvas id="canvas"></canvas>
     <div id="status" class="waiting">Waiting for camera...</div>
+    <div id="checkmark">✅</div>
 
     <script>
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const statusDiv = document.getElementById('status');
+        const checkmarkDiv = document.getElementById('checkmark');
         const ctx = canvas.getContext('2d');
         let scanning = true;
 
@@ -62,14 +72,6 @@
                 height: { ideal: 720 }
             }
         };
-
-        video.addEventListener('loadedmetadata', () => {
-            if (video.videoWidth === 0 || video.videoHeight === 0) {
-                console.error('Video dimensions not available');
-                statusDiv.textContent = 'Error: Camera not properly initialized';
-                statusDiv.className = 'error';
-            }
-        });
 
         async function initCamera() {
             try {
@@ -97,14 +99,16 @@
                 if (code && scanning) {
                     scanning = false;
                     sendQRCode(code.data);
-                    statusDiv.textContent = 'User found: ' + code.data;
+                    statusDiv.textContent = 'User checked in: ' + code.data;
                     statusDiv.className = 'success';
+                    checkmarkDiv.style.display = 'block';  // Show the checkmark
 
                     setTimeout(() => {
                         scanning = true;
                         statusDiv.textContent = 'Ready to scan next code';
                         statusDiv.className = 'waiting';
-                    }, 2000);
+                        checkmarkDiv.style.display = 'none';  // Hide the checkmark
+                    }, 3000);
                 }
             }
             requestAnimationFrame(scanFrame);
