@@ -189,6 +189,12 @@ def display_log():
                     data.log.forEach(entry => {
                         const p = document.createElement('p');
                         p.textContent = `${entry.name} - ${entry.event_type} at ${entry.time}`;
+                        const deleteButton = document.createElement('button');
+                        deleteButton.textContent = 'X';
+                        deleteButton.onclick = () => {
+                            socket.emit('delete_log_entry', { user_id: entry.user_id, event_type: entry.event_type });
+                        };
+                        p.appendChild(deleteButton);
                         logDiv.appendChild(p);
                     });
                 });
@@ -272,6 +278,27 @@ def handle_search_log(data):
             'success': False,
             'message': f'Search error: {str(e)}'
         })
+
+@app.route('/delete_log_entry', methods=['POST'])
+def delete_log_entry():
+    try:
+        data = request.json
+        user_id = data['user_id']
+        event_type = data['event_type']
+
+        # Find and remove the entry from user_log
+        global user_log
+        user_log = [entry for entry in user_log if not (entry['user_id'] == user_id and entry['event_type'] == event_type)]
+        save_user_log(user_log)
+
+        socketio.emit('update_log', {
+            'log': user_log,
+            'total_users': len(user_log)
+        })
+        return jsonify({'message': 'Log entry deleted successfully'}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=8000, allow_unsafe_werkzeug=True) 
