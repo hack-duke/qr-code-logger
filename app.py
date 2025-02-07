@@ -72,7 +72,7 @@ def log_user():
                     'success': False,
                     'message': f'{name} already checked in at {check_in_time}'
                 })
-                return jsonify({'error': 'User already checked in '}), 400
+                return jsonify({'error': f'{name} already checked in: {event_type} '}), 400
 
         # Log the new check-in
         check_in_time = str(datetime.now().strftime('%H:%M'))
