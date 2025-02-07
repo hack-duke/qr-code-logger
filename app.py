@@ -191,8 +191,28 @@ def display_log():
                         p.textContent = `${entry.name} - ${entry.event_type} at ${entry.time}`;
                         const deleteButton = document.createElement('button');
                         deleteButton.textContent = 'X';
+                        deleteButton.style.background = 'none';
+                        deleteButton.style.color = 'red';
+                        deleteButton.style.border = 'none';
+                        deleteButton.style.cursor = 'pointer';
+                        deleteButton.style.marginLeft = '10px';
                         deleteButton.onclick = () => {
-                            socket.emit('delete_log_entry', { user_id: entry.user_id, event_type: entry.event_type });
+                            fetch('/delete_log_entry', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ user_id: entry.user_id, event_type: entry.event_type })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.message) {
+                                    socket.emit('request_initial_log');
+                                } else {
+                                    console.error('Error deleting log entry:', data.error);
+                                }
+                            })
+                            .catch(error => console.error('Fetch error:', error));
                         };
                         p.appendChild(deleteButton);
                         logDiv.appendChild(p);
