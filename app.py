@@ -36,7 +36,9 @@ def index():
 def resolve_name(user_id):
     try:
         user = collection.find_one({'userId': user_id})
-        return user['name'] if user else None
+        firstName = user['prefName'] or user['firstName']
+        fullName = firstName + " " + user['lastName']
+        return fullName if user else None
     except Exception as e:
         print(f"Error resolving name: {e}")
         return None
@@ -68,9 +70,9 @@ def log_user():
                 check_in_time = entry['time']
                 socketio.emit('notification', {
                     'success': False,
-                    'message': f'User already checked in at {check_in_time}'
+                    'message': f'{name} already checked in at {check_in_time}'
                 })
-                return jsonify({'error': 'User already checked in'}), 400
+                return jsonify({'error': 'User already checked in '}), 400
 
         # Log the new check-in
         check_in_time = str(datetime.now().strftime('%H:%M'))

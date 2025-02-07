@@ -126,14 +126,16 @@
                 body: JSON.stringify({ qrCode: data, eventType })
             }).then(response => {
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    return response.json().then(errData => {
+                        throw new Error(errData.error || 'Network response was not ok');
+                    });
                 }
                 return response.json();
             }).then(data => {
                 console.log('Success:', data);
             }).catch(err => {
                 console.error('Error sending QR code data:', err);
-                statusDiv.textContent = 'Error sending data: ' + err.message;
+                statusDiv.textContent = 'Error: ' + err.message;
                 statusDiv.className = 'error';
             });
         }
