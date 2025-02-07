@@ -4,6 +4,7 @@ from flask import Flask, request, jsonify, render_template_string
 from flask_socketio import SocketIO, emit
 from dotenv import load_dotenv
 from pymongo import MongoClient
+from datetime import datetime
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -44,7 +45,7 @@ def resolve_name(user_id):
 def log_user():
     try:
         data = request.json
-        if not data or 'qrCode' not in data:
+        if not data or 'qrCode' not in data or 'eventType' not in data:
             socketio.emit('notification', {
                 'success': False,
                 'message': 'Invalid request'
@@ -52,6 +53,7 @@ def log_user():
             return jsonify({'error': 'Invalid request'}), 400
 
         user_id = data['qrCode']
+        event_type = data['eventType']
         name = resolve_name(user_id)
         if not name:
             socketio.emit('notification', {
@@ -60,17 +62,28 @@ def log_user():
             })
             return jsonify({'error': 'User not found in DB'}), 400
 
-        if not any(entry['user_id'] == user_id for entry in user_log):
-            user_log.insert(0, {'user_id': user_id, 'name': name})
-            save_user_log(user_log)
-            socketio.emit('update_log', {
-                'log': user_log,
-                'total_users': len(user_log)
-            })
-            socketio.emit('notification', {
-                'success': True,
-                'message': 'Check-in successful'
-            })
+        # Check if user has already checked in for this event type
+        for entry in user_log:
+            if entry['user_id'] == user_id and entry['event_type'] == event_type:
+                check_in_time = entry['time']
+                socketio.emit('notification', {
+                    'success': False,
+                    'message': f'User already checked in at {check_in_time}'
+                })
+                return jsonify({'error': 'User already checked in'}), 400
+
+        # Log the new check-in
+        check_in_time = str(datetime.now().strftime('%H:%M'))
+        user_log.insert(0, {'user_id': user_id, 'name': name, 'event_type': event_type, 'time': check_in_time})
+        save_user_log(user_log)
+        socketio.emit('update_log', {
+            'log': user_log,
+            'total_users': len(user_log)
+        })
+        socketio.emit('notification', {
+            'success': True,
+            'message': 'Check-in successful'
+        })
         return jsonify({'message': 'User logged successfully'}), 200
 
     except Exception as e:
@@ -173,7 +186,7 @@ def display_log():
                     logDiv.innerHTML = '';
                     data.log.forEach(entry => {
                         const p = document.createElement('p');
-                        p.textContent = entry.name;
+                        p.textContent = `${entry.name} - ${entry.event_type} at ${entry.time}`;
                         logDiv.appendChild(p);
                     });
                 });
@@ -209,7 +222,7 @@ def display_log():
                     logDiv.innerHTML = '';
                     data.log.forEach(entry => {
                         const p = document.createElement('p');
-                        p.textContent = entry.name;
+                        p.textContent = `${entry.name} - ${entry.event_type} at ${entry.time}`;
                         logDiv.appendChild(p);
                     });
                 });
@@ -259,4 +272,4 @@ def handle_search_log(data):
         })
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=8000)
+    socketio.run(app, host='0.0.0.0', port=8000) 

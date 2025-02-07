@@ -44,6 +44,11 @@
 </head>
 <body>
     <h1>QR Code Scanner</h1>
+    <select id="event-select">
+        <option value="check-in">Check-In</option>
+        <option value="lunch">Lunch</option>
+        <option value="dinner">Dinner</option>
+    </select>
     <video id="video" autoplay playsinline muted></video>
     <canvas id="canvas"></canvas>
     <div id="status" class="waiting">Waiting for camera...</div>
@@ -52,6 +57,7 @@
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const statusDiv = document.getElementById('status');
+        const eventSelect = document.getElementById('event-select');
         const ctx = canvas.getContext('2d');
         let scanning = true;
 
@@ -111,12 +117,13 @@
         }
 
         function sendQRCode(data) {
+            const eventType = eventSelect.value;
             fetch('/log_user', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ qrCode: data })
+                body: JSON.stringify({ qrCode: data, eventType })
             }).then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
